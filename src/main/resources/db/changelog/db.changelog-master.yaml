@@ -1,0 +1,22 @@
+databaseChangeLog:
+
+  - include:
+      file: db/changelog/changes/001-create-users-table.yaml
+
+  - include:
+      file: db/changelog/changes/002-create-auth-credentials-table.yaml
+
+  - include:
+      file: db/changelog/changes/003-add-auth-credentials-indexes.yaml
+
+  - include:
+      file: db/changelog/changes/004-create-refresh-tokens-table.yaml
+
+  - include:
+      file: db/changelog/changes/005-add-refresh-tokens-indexes.yaml
+
+  - include:
+      file: db/changelog/changes/006-create-registration-requests-table.yaml
+
+  - include:
+      file: db/changelog/changes/007-add-registration-requests-indexes.yaml

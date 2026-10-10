@@ -1,0 +1,21 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 005-add-refresh-tokens-indexes
+      author: zodiakk
+
+      changes:
+
+        - createIndex:
+            tableName: refresh_tokens
+            indexName: idx_refresh_tokens_user_id
+            columns:
+              - column:
+                  name: user_id
+
+        - createIndex:
+            tableName: refresh_tokens
+            indexName: idx_refresh_tokens_revoked
+            columns:
+              - column:
+                  name: revoked

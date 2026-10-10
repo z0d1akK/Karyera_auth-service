@@ -1,0 +1,21 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 007-add-registration-request-indexes
+      author: zodiakk
+
+      changes:
+
+        - createIndex:
+            tableName: registration_requests
+            indexName: idx_registration_requests_status
+            columns:
+              - column:
+                  name: status
+
+        - createIndex:
+            tableName: registration_requests
+            indexName: idx_registration_requests_processed_by
+            columns:
+              - column:
+                  name: processed_by
