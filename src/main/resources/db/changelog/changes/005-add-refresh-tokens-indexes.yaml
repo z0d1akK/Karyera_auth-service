@@ -1,21 +1,18 @@
 databaseChangeLog:
-
   - changeSet:
       id: 005-add-refresh-tokens-indexes
       author: zodiakk
-
       changes:
-
         - createIndex:
             tableName: refresh_tokens
-            indexName: idx_refresh_tokens_user_id
+            indexName: idx_refresh_tokens_expires_at
             columns:
               - column:
-                  name: user_id
+                  name: expires_at
 
-        - createIndex:
-            tableName: refresh_tokens
-            indexName: idx_refresh_tokens_revoked
-            columns:
-              - column:
-                  name: revoked
+        - sql:
+            dbms: postgresql
+            sql: |
+              CREATE INDEX idx_refresh_tokens_active_user
+                  ON refresh_tokens (user_id)
+                  WHERE revoked = false;

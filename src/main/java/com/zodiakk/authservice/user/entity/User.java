@@ -1,13 +1,8 @@
 package com.zodiakk.authservice.user.entity;
 
 import com.zodiakk.authservice.common.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Objects;
@@ -22,14 +17,23 @@ import java.util.UUID;
 @SuperBuilder
 public class User extends BaseEntity {
 
-    @Column(name = "employee_id", nullable = false, unique = true, updatable = false)
+    @Column(
+            name = "employee_id",
+            nullable = false,
+            updatable = false
+    )
     private UUID employeeId;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
     private Boolean active;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "deletion_status", nullable = false, length = 20)
+    private AccountDeletionStatus deletionStatus = AccountDeletionStatus.NONE;
 
     @Override
     public final boolean equals(Object o) {

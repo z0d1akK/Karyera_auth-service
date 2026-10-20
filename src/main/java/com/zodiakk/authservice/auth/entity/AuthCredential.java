@@ -6,10 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Objects;
@@ -27,11 +24,15 @@ public class AuthCredential extends BaseEntity {
     @Column(name = "user_id", nullable = false, unique = true)
     private UUID userId;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String login;
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
+
+    @Builder.Default
+    @Column(name = "password_change_required", nullable = false)
+    private Boolean passwordChangeRequired = false;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)

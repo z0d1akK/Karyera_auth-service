@@ -1,16 +1,11 @@
 databaseChangeLog:
-
   - changeSet:
       id: 001-create-users
       author: zodiakk
-
       changes:
-
         - createTable:
             tableName: users
-
             columns:
-
               - column:
                   name: id
                   type: UUID
@@ -23,19 +18,25 @@ databaseChangeLog:
                   type: UUID
                   constraints:
                     nullable: false
-                    unique: true
+                    unique: false
 
               - column:
                   name: email
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
-                    unique: true
 
               - column:
                   name: active
                   type: BOOLEAN
                   defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: deletion_status
+                  type: VARCHAR(20)
+                  defaultValue: NONE
                   constraints:
                     nullable: false
 
@@ -50,3 +51,16 @@ databaseChangeLog:
                   type: TIMESTAMP WITH TIME ZONE
                   constraints:
                     nullable: false
+
+        - sql:
+            dbms: postgresql
+            sql: |
+              CREATE UNIQUE INDEX ux_users_email_lower
+                  ON users (LOWER(email));
+
+        - sql:
+            dbms: postgresql
+            sql: |
+              ALTER TABLE users
+              ADD CONSTRAINT chk_users_deletion_status
+              CHECK (deletion_status IN ('NONE', 'DELETING', 'DELETED'));
