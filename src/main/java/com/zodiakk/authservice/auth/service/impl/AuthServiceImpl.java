@@ -49,7 +49,9 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public TokenResponseDto login(LoginRequestDto request) {
 
-        AuthCredential credential = authCredentialRepository.findByLogin(request.getLogin())
+        String login = normalizeLogin(request.getLogin());
+
+        AuthCredential credential = authCredentialRepository.findByLogin(login)
                 .orElseThrow(InvalidCredentialsException::new);
 
         if (!passwordEncoder.matches(request.getPassword(), credential.getPasswordHash())) {
@@ -64,7 +66,6 @@ public class AuthServiceImpl implements AuthService {
 
         return generateTokenResponse(credential, user);
     }
-
 
     @Override
     @Transactional
@@ -93,8 +94,6 @@ public class AuthServiceImpl implements AuthService {
 
         return generateTokenResponse(credential, user);
     }
-
-
 
     @Override
     public TokenValidationResponseDto validateToken(ValidateTokenRequestDto request) {
@@ -151,8 +150,6 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-
-
     @Override
     @Transactional
     public void logout(RefreshTokenRequestDto request) {
@@ -170,11 +167,10 @@ public class AuthServiceImpl implements AuthService {
         storedToken.setRevoked(true);
     }
 
-
     @Override
     @Transactional
     public void changeInitialPassword(ChangeInitialPasswordRequestDto request) {
-        String login = request.getLogin().trim().toLowerCase(Locale.ROOT);
+        String login = normalizeLogin(request.getLogin());
 
         AuthCredential credential = authCredentialRepository
                 .findByLoginForUpdate(login)
@@ -262,6 +258,9 @@ public class AuthServiceImpl implements AuthService {
         return user;
     }
 
+    private String normalizeLogin(String login) {
+        return login == null ? null : login.trim().toLowerCase(Locale.ROOT);
+    }
 
     private JwtTokenClaims parseRefreshToken(String token) {
         try {

@@ -7,6 +7,7 @@ import com.zodiakk.authservice.auth.exception.PasswordMustDifferException;
 import com.zodiakk.authservice.auth.repository.AuthCredentialRepository;
 import com.zodiakk.authservice.auth.repository.RefreshTokenRepository;
 import com.zodiakk.authservice.auth.security.utils.SecurityContextUtils;
+import com.zodiakk.authservice.common.exception.ErrorMessages;
 import com.zodiakk.authservice.integration.employee.dto.EmployeeAccountInfoDto;
 import com.zodiakk.authservice.integration.employee.dto.EmploymentStatus;
 import com.zodiakk.authservice.integration.employee.service.EmployeeIntegrationService;
@@ -24,8 +25,8 @@ import com.zodiakk.authservice.user.repository.UserRepository;
 import com.zodiakk.authservice.user.security.UserAdministrationPolicy;
 import com.zodiakk.authservice.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -72,20 +73,27 @@ public class UserServiceImpl implements UserService {
 
         if (employee.employmentStatus() != EmploymentStatus.ACTIVE
                 && employee.employmentStatus() != EmploymentStatus.ON_LEAVE) {
-            throw new EmployeeAccountCreationException("Employee employment status does not allow account creation");
+            throw new EmployeeAccountCreationException(ErrorMessages.EMPLOYEE_ACCOUNT_CREATION_FORBIDDEN);
         }
 
-        if (employee.userId() != null || userRepository.existsByEmployeeIdAndDeletionStatusNot(employee.employeeId(), AccountDeletionStatus.DELETED)) {
+        if (employee.userId() != null
+                || userRepository.existsByEmployeeIdAndDeletionStatusNot(
+                        employee.employeeId(),
+                        AccountDeletionStatus.DELETED
+                )) {
             throw new UserAlreadyExistsException(employee.employeeId().toString());
         }
 
         String email = normalizeEmail(employee.email());
 
         if (email == null || email.isBlank()) {
-            throw new EmployeeAccountCreationException("Employee corporate email is missing");
+            throw new EmployeeAccountCreationException(ErrorMessages.EMPLOYEE_EMAIL_MISSING);
         }
 
-        if (userRepository.existsByEmailIgnoreCaseAndDeletionStatusNot(email, AccountDeletionStatus.DELETED)) {
+        if (userRepository.existsByEmailIgnoreCaseAndDeletionStatusNot(
+                email,
+                AccountDeletionStatus.DELETED
+        )) {
             throw new UserAlreadyExistsException(email);
         }
 
@@ -93,26 +101,34 @@ public class UserServiceImpl implements UserService {
             administrationLockRepository.lock();
         }
 
-        User user = userRepository.save(
-                User.builder()
-                        .employeeId(employee.employeeId())
-                        .email(email)
-                        .active(true)
-                        .deletionStatus(AccountDeletionStatus.NONE)
-                        .build()
-        );
+        User user;
 
-        AuthCredential credential = authCredentialRepository.save(
-                AuthCredential.builder()
-                        .userId(user.getId())
-                        .login(email)
-                        .passwordHash(passwordEncoder.encode(request.getInitialPassword()))
-                        .role(request.getRole())
-                        .passwordChangeRequired(true)
-                        .build()
-        );
+        AuthCredential credential;
 
-        userEventService.publishUserCreated(
+        try {
+            user = userRepository.saveAndFlush(
+                    User.builder()
+                            .employeeId(employee.employeeId())
+                            .email(email)
+                            .active(true)
+                            .deletionStatus(AccountDeletionStatus.NONE)
+                            .build()
+            );
+
+            credential = authCredentialRepository.saveAndFlush(
+                    AuthCredential.builder()
+                            .userId(user.getId())
+                            .login(email)
+                            .passwordHash(passwordEncoder.encode(request.getInitialPassword()))
+                            .role(request.getRole())
+                            .passwordChangeRequired(true)
+                            .build()
+            );
+        } catch (DataIntegrityViolationException ex) {
+            throw new UserAlreadyExistsException(employee.employeeId().toString());
+        }
+
+        userEventService.recordUserCreated(
                 user.getId(),
                 user.getEmployeeId()
         );
@@ -127,22 +143,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto getByEmployeeId(UUID employeeId) {
-        User user = userRepository.findByEmployeeIdAndDeletionStatusNot(employeeId, AccountDeletionStatus.DELETED)
-                .orElseThrow(() -> new UserNotFoundException(employeeId));
+        User user = userRepository.findByEmployeeIdAndDeletionStatusNot(
+                employeeId,
+                AccountDeletionStatus.DELETED
+        ).orElseThrow(() -> new UserNotFoundException(employeeId));
 
         return toResponse(user);
     }
-
-    @Override
-    public UserResponseDto getByEmail(String email) {
-        String normalized = normalizeEmail(email);
-
-        User user = userRepository.findByEmailAndDeletionStatusNot(normalized, AccountDeletionStatus.DELETED)
-                .orElseThrow(() -> new UserNotFoundByEmailException(email));
-
-        return toResponse(user);
-    }
-
 
     @Override
     public Page<UserResponseDto> getAll(Pageable pageable) {
@@ -150,14 +157,6 @@ public class UserServiceImpl implements UserService {
                 AccountDeletionStatus.DELETED,
                 pageable
         );
-
-        if (usersPage.isEmpty()) {
-            return new PageImpl<>(
-                    List.of(),
-                    pageable,
-                    usersPage.getTotalElements()
-            );
-        }
 
         List<UUID> userIds = usersPage.getContent()
                 .stream()
@@ -182,8 +181,6 @@ public class UserServiceImpl implements UserService {
             return userMapper.toResponseDto(user, credential);
         });
     }
-
-
 
     @Override
     @Transactional
@@ -232,6 +229,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void resetPassword(UUID id, ResetUserPasswordRequestDto request) {
         administrationPolicy.checkUpdatePermission(getCurrentOperatorRole());
+
+        administrationLockRepository.lock();
 
         User user = findUser(id);
 
@@ -298,7 +297,6 @@ public class UserServiceImpl implements UserService {
         refreshTokenRepository.revokeAllByUserId(id);
     }
 
-
     @Override
     @Transactional
     public void delete(UUID id) {
@@ -332,7 +330,6 @@ public class UserServiceImpl implements UserService {
                 user.getEmployeeId()
         );
     }
-
 
     private User findUser(UUID id) {
         return userRepository.findByIdAndDeletionStatusNot(id, AccountDeletionStatus.DELETED)

@@ -1,5 +1,6 @@
 package com.zodiakk.authservice.outbox.service;
 
+import com.zodiakk.authservice.common.exception.ErrorMessages;
 import com.zodiakk.authservice.outbox.dto.OutboxEventEnvelope;
 import com.zodiakk.authservice.outbox.entity.OutboxEvent;
 import com.zodiakk.authservice.outbox.entity.OutboxEventStatus;
@@ -62,7 +63,7 @@ public class OutboxEventService {
 
         } catch (JacksonException ex) {
             throw new IllegalStateException(
-                    "Failed to serialize outbox event: " + eventType,
+                    ErrorMessages.OUTBOX_EVENT_SERIALIZATION_FAILED.formatted(eventType),
                     ex
             );
         }

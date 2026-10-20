@@ -1,4 +1,3 @@
-
 package com.zodiakk.authservice.auth.security.handler;
 
 import com.zodiakk.authservice.common.dto.response.ApiErrorResponse;

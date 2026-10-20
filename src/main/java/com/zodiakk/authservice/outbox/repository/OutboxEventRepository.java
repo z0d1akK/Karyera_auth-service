@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,5 +69,17 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, UUID> 
             @Param("nextAttemptAt") OffsetDateTime nextAttemptAt
     );
 
+    boolean existsByAggregateIdAndEventTypeAndStatusIn(
+            UUID aggregateId,
+            String eventType,
+            Collection<OutboxEventStatus> statuses
+    );
 
+    @Modifying
+    @Query("""
+        DELETE FROM OutboxEvent e
+        WHERE e.status = :status
+          AND e.publishedAt < :cutoff
+        """)
+    int deletePublishedBefore(@Param("status") OutboxEventStatus status, @Param("cutoff") OffsetDateTime cutoff);
 }

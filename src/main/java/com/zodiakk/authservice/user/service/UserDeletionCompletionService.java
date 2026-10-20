@@ -2,6 +2,7 @@ package com.zodiakk.authservice.user.service;
 
 import com.zodiakk.authservice.auth.repository.AuthCredentialRepository;
 import com.zodiakk.authservice.auth.repository.RefreshTokenRepository;
+import com.zodiakk.authservice.common.exception.ErrorMessages;
 import com.zodiakk.authservice.integration.employee.dto.EmployeeAccountUnlinkedEvent;
 import com.zodiakk.authservice.integration.employee.repository.ProcessedEventRepository;
 import com.zodiakk.authservice.user.entity.AccountDeletionStatus;
@@ -27,10 +28,7 @@ public class UserDeletionCompletionService {
     private final ProcessedEventRepository processedEventRepository;
 
     @Transactional
-    public void completeDeletion(
-            UUID eventId,
-            EmployeeAccountUnlinkedEvent event
-    ) {
+    public void completeDeletion(UUID eventId, EmployeeAccountUnlinkedEvent event) {
         Objects.requireNonNull(eventId, "eventId is required");
         Objects.requireNonNull(event, "event is required");
         Objects.requireNonNull(event.userId(), "userId is required");
@@ -38,12 +36,12 @@ public class UserDeletionCompletionService {
 
         User user = userRepository.findByIdForUpdate(event.userId())
                 .orElseThrow(() -> new IllegalStateException(
-                        "User not found: " + event.userId()
+                        ErrorMessages.USER_NOT_FOUND.formatted(event.userId())
                 ));
 
         if (!user.getEmployeeId().equals(event.employeeId())) {
             throw new IllegalStateException(
-                    "Employee ID mismatch for user " + event.userId()
+                    ErrorMessages.EMPLOYEE_ID_MISMATCH.formatted(event.userId())
             );
         }
 
@@ -59,7 +57,7 @@ public class UserDeletionCompletionService {
 
         if (user.getDeletionStatus() != AccountDeletionStatus.DELETING) {
             throw new IllegalStateException(
-                    "User is not in DELETING state: " + user.getId()
+                    ErrorMessages.USER_NOT_IN_DELETING_STATE.formatted(user.getId())
             );
         }
 

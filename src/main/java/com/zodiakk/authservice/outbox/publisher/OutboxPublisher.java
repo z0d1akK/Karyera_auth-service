@@ -41,11 +41,41 @@ public class OutboxPublisher {
                     userEventsTopic,
                     event.getAggregateId().toString(),
                     event.getPayload()
-            ).get(
+            ).orTimeout(
                     properties.sendTimeoutSeconds(),
                     TimeUnit.SECONDS
+            ).whenComplete((result, ex) -> complete(event, ex));
+        } catch (RuntimeException ex) {
+            complete(event, ex);
+        }
+    }
+
+    private void complete(OutboxEvent event, Throwable ex) {
+        if (ex != null) {
+            log.error(
+                    "Failed to publish outbox event: id={}, attempt={}",
+                    event.getId(),
+                    event.getAttempts(),
+                    ex
             );
 
+            try {
+                claimService.markFailed(
+                        event.getId(),
+                        event.getAttempts()
+                );
+            } catch (RuntimeException markException) {
+                log.error(
+                        "Failed to mark outbox event as failed: id={}",
+                        event.getId(),
+                        markException
+                );
+            }
+
+            return;
+        }
+
+        try {
             boolean updated = claimService.markPublished(
                     event.getId(),
                     event.getAttempts()
@@ -63,23 +93,12 @@ public class OutboxPublisher {
                         event.getEventType()
                 );
             }
-
-        } catch (Exception ex) {
+        } catch (RuntimeException markException) {
             log.error(
-                    "Failed to publish outbox event: id={}, attempt={}",
+                    "Failed to mark outbox event as published: id={}",
                     event.getId(),
-                    event.getAttempts(),
-                    ex
+                    markException
             );
-
-            claimService.markFailed(
-                    event.getId(),
-                    event.getAttempts()
-            );
-
-            if (ex instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
         }
     }
 }

@@ -1,4 +1,3 @@
-
 package com.zodiakk.authservice.auth.security;
 
 import com.zodiakk.authservice.auth.security.filter.InternalApiKeyFilter;
@@ -6,6 +5,7 @@ import com.zodiakk.authservice.auth.security.handler.CustomAccessDeniedHandler;
 import com.zodiakk.authservice.auth.security.handler.CustomAuthenticationEntryPoint;
 import com.zodiakk.authservice.auth.security.jwt.filter.JwtAuthenticationFilter;
 import com.zodiakk.authservice.auth.security.jwt.service.JwtService;
+import com.zodiakk.authservice.common.constants.SecurityConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,8 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -49,7 +47,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authorizeHttpRequests(auth -> auth.anyRequest().hasRole("INTERNAL_SERVICE"))
+                .authorizeHttpRequests(auth -> auth.anyRequest().hasAuthority(SecurityConstants.INTERNAL_SERVICE_AUTHORITY))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(entryPoint)
                         .accessDeniedHandler(new CustomAccessDeniedHandler())
@@ -63,7 +61,10 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver
+    ) throws Exception {
 
         JwtAuthenticationFilter jwtAuthenticationFilter =
                 new JwtAuthenticationFilter(jwtService, handlerExceptionResolver);
@@ -97,11 +98,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users").hasAnyRole("HR", "ADMIN")
 
-                        .requestMatchers("/api/users/**")
-
-                        .authenticated()
-                        .anyRequest()
-                        .authenticated()
+                        .requestMatchers("/api/users/**").authenticated()
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
@@ -117,10 +115,5 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
     }
 }

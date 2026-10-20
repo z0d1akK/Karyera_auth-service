@@ -17,4 +17,14 @@ public final class ValidationMessages {
     public static final String REFRESH_TOKEN_REQUIRED = "Refresh-токен обязателен";
 
     public static final String TOKEN_REQUIRED = "Токен обязателен";
+
+    public static final String EMPLOYEE_ID_REQUIRED = "Идентификатор сотрудника обязателен";
+
+    public static final String ROLE_REQUIRED = "Роль обязательна";
+
+    public static final String ACTIVE_REQUIRED = "Признак активности обязателен";
+
+    public static final String NEW_PASSWORD_SIZE = "Новый пароль должен содержать от 12 до 255 символов";
+
+    public static final String TEMPORARY_PASSWORD_SIZE = "Временный пароль должен содержать от 12 до 128 символов";
 }

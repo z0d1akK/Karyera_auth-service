@@ -2,6 +2,39 @@ databaseChangeLog:
   - changeSet:
       id: 007-allow-recreation-of-deleted-users
       author: zodiakk
+      preConditions:
+        - onFail: HALT
+        - onFailMessage: >-
+            Обнаружены дубли в таблице users среди неудалённых записей
+            (одинаковый employee_id или одинаковый LOWER(email)).
+            Устраните дубли (переведите лишние записи в DELETED либо исправьте
+            employee_id/email) и повторите миграцию.
+        - onError: HALT
+        - onErrorMessage: >-
+            Не удалось проверить таблицу users на дубли перед созданием
+            unique-индексов. Проверьте, что changeset 001 применён.
+        - sqlCheck:
+            expectedResult: 0
+            sql: |
+              SELECT COUNT(*)
+              FROM (
+                  SELECT employee_id
+                  FROM users
+                  WHERE deletion_status <> 'DELETED'
+                  GROUP BY employee_id
+                  HAVING COUNT(*) > 1
+              ) duplicates
+        - sqlCheck:
+            expectedResult: 0
+            sql: |
+              SELECT COUNT(*)
+              FROM (
+                  SELECT LOWER(email)
+                  FROM users
+                  WHERE deletion_status <> 'DELETED'
+                  GROUP BY LOWER(email)
+                  HAVING COUNT(*) > 1
+              ) duplicates
       changes:
         - sql:
             dbms: postgresql
@@ -32,6 +65,8 @@ databaseChangeLog:
               END $$;
 
               DROP INDEX IF EXISTS ux_users_email_lower;
+              DROP INDEX IF EXISTS ux_users_employee_not_deleted;
+              DROP INDEX IF EXISTS ux_users_email_lower_not_deleted;
 
               CREATE UNIQUE INDEX ux_users_employee_not_deleted
                   ON users (employee_id)

@@ -1,5 +1,6 @@
 package com.zodiakk.authservice.integration.employee.service.impl;
 
+import com.zodiakk.authservice.common.exception.ErrorMessages;
 import com.zodiakk.authservice.integration.employee.client.EmployeeClient;
 import com.zodiakk.authservice.integration.employee.dto.EmployeeAccountInfoDto;
 import com.zodiakk.authservice.integration.employee.exception.EmployeeIntegrationException;
@@ -43,7 +44,10 @@ public class EmployeeIntegrationServiceImpl implements EmployeeIntegrationServic
         if (exception instanceof FeignException feignException
                 && feignException.status() >= 400
                 && feignException.status() < 500) {
-            throw new EmployeeIntegrationException("Employee Service rejected the internal request", feignException);
+            throw new EmployeeIntegrationException(
+                    ErrorMessages.EMPLOYEE_SERVICE_REJECTED_REQUEST,
+                    feignException
+            );
         }
 
         throw new EmployeeServiceUnavailableException();

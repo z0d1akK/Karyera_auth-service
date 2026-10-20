@@ -1,5 +1,6 @@
 package com.zodiakk.authservice.config;
 
+import com.zodiakk.authservice.common.constants.SecurityConstants;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -23,7 +24,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
         name = "internalApiKey",
         type = SecuritySchemeType.APIKEY,
         in = SecuritySchemeIn.HEADER,
-        paramName = "X-Internal-Key"
+        paramName = SecurityConstants.INTERNAL_API_KEY_HEADER
 )
 public class OpenApiConfig {
 }

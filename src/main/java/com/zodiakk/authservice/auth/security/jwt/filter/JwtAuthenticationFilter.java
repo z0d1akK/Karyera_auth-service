@@ -1,4 +1,3 @@
-
 package com.zodiakk.authservice.auth.security.jwt.filter;
 
 import com.zodiakk.authservice.auth.exception.ExpiredJwtTokenException;
@@ -7,6 +6,7 @@ import com.zodiakk.authservice.auth.security.jwt.JwtTokenClaims;
 import com.zodiakk.authservice.auth.security.jwt.JwtTokenType;
 import com.zodiakk.authservice.auth.security.jwt.principal.AuthenticatedUser;
 import com.zodiakk.authservice.auth.security.jwt.service.JwtService;
+import com.zodiakk.authservice.common.constants.SecurityConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,14 +25,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String BEARER_PREFIX = "Bearer ";
+    private static final String BEARER_PREFIX = SecurityConstants.BEARER_PREFIX;
 
     private final JwtService jwtService;
 
     private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
         String authorizationHeader = request.getHeader(
                 HttpHeaders.AUTHORIZATION
@@ -81,7 +85,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         null,
                         List.of(
                                 new SimpleGrantedAuthority(
-                                        "ROLE_" + claims.role().name()
+                                        SecurityConstants.ROLE_PREFIX + claims.role().name()
                                 )
                         )
                 );

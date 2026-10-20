@@ -1,10 +1,11 @@
 package com.zodiakk.authservice.auth.exception;
 
 import com.zodiakk.authservice.common.exception.BusinessException;
+import com.zodiakk.authservice.common.exception.ErrorMessages;
 
 public class PasswordMustDifferException extends BusinessException {
 
     public PasswordMustDifferException() {
-        super("Новый пароль должен отличаться от текущего");
+        super(ErrorMessages.PASSWORD_MUST_DIFFER);
     }
 }

@@ -1,5 +1,7 @@
 package com.zodiakk.authservice.auth.security.filter;
 
+import com.zodiakk.authservice.common.constants.SecurityConstants;
+import com.zodiakk.authservice.common.exception.ErrorMessages;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,10 +22,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InternalApiKeyFilter extends OncePerRequestFilter {
 
-    public static final String INTERNAL_HEADER = "X-Internal-Key";
-
-    public static final String INTERNAL_SERVICE_ROLE = "ROLE_INTERNAL_SERVICE";
-
     private static final String INTERNAL_SERVICE_PRINCIPAL = "internal-service";
 
     private final String validInternalApiKey;
@@ -33,7 +31,7 @@ public class InternalApiKeyFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String providedKey = request.getHeader(INTERNAL_HEADER);
+        String providedKey = request.getHeader(SecurityConstants.INTERNAL_API_KEY_HEADER);
 
         if (!isValidKey(providedKey)) {
             SecurityContextHolder.clearContext();
@@ -41,7 +39,7 @@ public class InternalApiKeyFilter extends OncePerRequestFilter {
             authenticationEntryPoint.commence(
                     request,
                     response,
-                    new BadCredentialsException("Invalid internal API key")
+                    new BadCredentialsException(ErrorMessages.INVALID_INTERNAL_API_KEY)
             );
             return;
         }
@@ -50,7 +48,7 @@ public class InternalApiKeyFilter extends OncePerRequestFilter {
                 new UsernamePasswordAuthenticationToken(
                         INTERNAL_SERVICE_PRINCIPAL,
                         null,
-                        List.of(new SimpleGrantedAuthority(INTERNAL_SERVICE_ROLE))
+                        List.of(new SimpleGrantedAuthority(SecurityConstants.INTERNAL_SERVICE_AUTHORITY))
                 );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);

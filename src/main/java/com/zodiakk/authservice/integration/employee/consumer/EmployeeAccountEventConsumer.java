@@ -1,5 +1,7 @@
 package com.zodiakk.authservice.integration.employee.consumer;
 
+import com.zodiakk.authservice.common.constants.KafkaEventConstants;
+import com.zodiakk.authservice.common.exception.ErrorMessages;
 import com.zodiakk.authservice.integration.employee.dto.EmployeeAccountUnlinkedEvent;
 import com.zodiakk.authservice.outbox.dto.OutboxEventEnvelope;
 import com.zodiakk.authservice.user.service.UserDeletionCompletionService;
@@ -26,10 +28,10 @@ public class EmployeeAccountEventConsumer {
         OutboxEventEnvelope envelope =
                 objectMapper.readValue(message, OutboxEventEnvelope.class);
 
-        if (!"EMPLOYEE_ACCOUNT_UNLINKED".equals(envelope.eventType())
-                || envelope.eventVersion() != 1) {
+        if (!KafkaEventConstants.EMPLOYEE_ACCOUNT_UNLINKED.equals(envelope.eventType())
+                || envelope.eventVersion() != KafkaEventConstants.EVENT_VERSION_V1) {
             throw new IllegalArgumentException(
-                    "Unsupported employee account event"
+                    ErrorMessages.UNSUPPORTED_EMPLOYEE_ACCOUNT_EVENT
             );
         }
 

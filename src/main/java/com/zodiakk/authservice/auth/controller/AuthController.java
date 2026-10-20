@@ -1,4 +1,3 @@
-
 package com.zodiakk.authservice.auth.controller;
 
 import com.zodiakk.authservice.auth.dto.request.ChangeInitialPasswordRequestDto;
@@ -81,8 +80,7 @@ public class AuthController {
     @ApiResponse(responseCode = "401", description = "Invalid credentials",
             content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
     )
-    public ResponseEntity<Void> changeInitialPassword(@Valid @RequestBody ChangeInitialPasswordRequestDto request
-    ) {
+    public ResponseEntity<Void> changeInitialPassword(@Valid @RequestBody ChangeInitialPasswordRequestDto request) {
         authService.changeInitialPassword(request);
         return ResponseEntity.noContent().build();
     }

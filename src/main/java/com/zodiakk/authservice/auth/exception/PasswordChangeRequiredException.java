@@ -1,10 +1,11 @@
 package com.zodiakk.authservice.auth.exception;
 
 import com.zodiakk.authservice.common.exception.BusinessException;
+import com.zodiakk.authservice.common.exception.ErrorMessages;
 
 public class PasswordChangeRequiredException extends BusinessException {
 
     public PasswordChangeRequiredException() {
-        super("Password change is required before accessing the application");
+        super(ErrorMessages.PASSWORD_CHANGE_REQUIRED);
     }
 }

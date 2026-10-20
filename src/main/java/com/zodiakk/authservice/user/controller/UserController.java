@@ -97,7 +97,10 @@ public class UserController {
     @ApiResponse(responseCode = "409", description = "Last active administrator protection",
             content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
     )
-    public ResponseEntity<UserResponseDto> update(@PathVariable UUID id, @Valid @RequestBody UpdateUserRequestDto request) {
+    public ResponseEntity<UserResponseDto> update(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateUserRequestDto request
+    ) {
         return ResponseEntity.ok(userService.update(id, request));
     }
 
@@ -136,7 +139,10 @@ public class UserController {
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     @ApiResponse(responseCode = "403", description = "Administrator role required")
     @ApiResponse(responseCode = "404", description = "User not found")
-    public ResponseEntity<Void> resetPassword(@PathVariable UUID id, @Valid @RequestBody ResetUserPasswordRequestDto request) {
+    public ResponseEntity<Void> resetPassword(
+            @PathVariable UUID id,
+            @Valid @RequestBody ResetUserPasswordRequestDto request
+    ) {
         userService.resetPassword(id, request);
         return ResponseEntity.noContent().build();
     }

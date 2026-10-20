@@ -1,6 +1,7 @@
 package com.zodiakk.authservice.user.dto;
 
 import com.zodiakk.authservice.auth.entity.Role;
+import com.zodiakk.authservice.common.validation.ValidationMessages;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -11,9 +12,9 @@ import lombok.*;
 @Builder
 public class UpdateUserRequestDto {
 
-    @NotNull
+    @NotNull(message = ValidationMessages.ROLE_REQUIRED)
     private Role role;
 
-    @NotNull
+    @NotNull(message = ValidationMessages.ACTIVE_REQUIRED)
     private Boolean active;
 }

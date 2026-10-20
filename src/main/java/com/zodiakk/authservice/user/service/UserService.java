@@ -36,14 +36,6 @@ public interface UserService {
     UserResponseDto getByEmployeeId(UUID employeeId);
 
     /**
-     * Returns full user information by email.
-     *
-     * @param email users email identifier
-     * @return full user response
-     */
-    UserResponseDto getByEmail(String email);
-
-    /**
      * Returns paginated list of users in full representation.
      * <p>
      * Supports filtering and pagination.

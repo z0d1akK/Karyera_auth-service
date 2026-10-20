@@ -1,5 +1,6 @@
 package com.zodiakk.authservice.auth.dto.response;
 
+import com.zodiakk.authservice.common.constants.SecurityConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ public class TokenResponseDto {
     @Schema(description = "JWT refresh token", example = "eyJhbGciOiJIUzI1NiJ9...")
     private String refreshToken;
 
-    @Schema(description = "Token type", example = "Bearer")
+    @Schema(description = "Token type", example = SecurityConstants.BEARER)
     @Builder.Default
-    private String tokenType = "Bearer";
+    private String tokenType = SecurityConstants.BEARER;
 }

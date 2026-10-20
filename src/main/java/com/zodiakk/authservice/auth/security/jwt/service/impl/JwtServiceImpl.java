@@ -105,7 +105,23 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public JwtTokenClaims parseToken(String token) {
+    public JwtTokenClaims parseToken(String token, JwtTokenType expectedType) {
+        if (expectedType == null) {
+            throw new IllegalArgumentException(
+                    "Expected JWT token type is required"
+            );
+        }
+
+        JwtTokenClaims claims = parseToken(token);
+
+        if (claims.tokenType() != expectedType) {
+            throw new InvalidJwtTokenException();
+        }
+
+        return claims;
+    }
+
+    private JwtTokenClaims parseToken(String token) {
         if (token == null || token.isBlank()) {
             throw new InvalidJwtTokenException();
         }
@@ -123,73 +139,6 @@ public class JwtServiceImpl implements JwtService {
             throw new ExpiredJwtTokenException();
         } catch (JwtException | IllegalArgumentException ex) {
             throw new InvalidJwtTokenException();
-        }
-    }
-
-    @Override
-    public JwtTokenClaims parseToken(
-            String token,
-            JwtTokenType expectedType
-    ) {
-        if (expectedType == null) {
-            throw new IllegalArgumentException(
-                    "Expected JWT token type is required"
-            );
-        }
-
-        JwtTokenClaims claims = parseToken(token);
-
-        if (claims.tokenType() != expectedType) {
-            throw new InvalidJwtTokenException();
-        }
-
-        return claims;
-    }
-
-    @Override
-    public UUID extractUserId(String token) {
-        return parseToken(token).userId();
-    }
-
-    @Override
-    public Role extractRole(String token) {
-        return parseToken(token).role();
-    }
-
-    @Override
-    public String extractEmail(String token) {
-        return parseToken(token).email();
-    }
-
-    @Override
-    public JwtTokenType extractTokenType(String token) {
-        return parseToken(token).tokenType();
-    }
-
-    @Override
-    public boolean isTokenValid(String token) {
-        try {
-            parseToken(token);
-            return true;
-        } catch (ExpiredJwtTokenException | InvalidJwtTokenException ex) {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean isTokenValid(
-            String token,
-            JwtTokenType expectedType
-    ) {
-        if (expectedType == null) {
-            return false;
-        }
-
-        try {
-            parseToken(token, expectedType);
-            return true;
-        } catch (ExpiredJwtTokenException | InvalidJwtTokenException ex) {
-            return false;
         }
     }
 

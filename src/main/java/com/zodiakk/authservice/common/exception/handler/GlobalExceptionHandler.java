@@ -8,6 +8,7 @@ import com.zodiakk.authservice.common.exception.BusinessException;
 import com.zodiakk.authservice.common.exception.ErrorMessages;
 import com.zodiakk.authservice.common.exception.ResourceNotFoundException;
 import com.zodiakk.authservice.common.exception.UnauthorizedException;
+import com.zodiakk.authservice.integration.employee.exception.EmployeeIntegrationException;
 import com.zodiakk.authservice.integration.employee.exception.EmployeeServiceUnavailableException;
 import com.zodiakk.authservice.user.exception.LastActiveAdminException;
 import com.zodiakk.authservice.user.exception.UserAlreadyExistsException;
@@ -96,7 +97,18 @@ public class GlobalExceptionHandler {
         return error(
                 HttpStatus.SERVICE_UNAVAILABLE,
                 "EMPLOYEE_SERVICE_UNAVAILABLE",
-                "Сервис сотрудников временно недоступен"
+                ErrorMessages.EMPLOYEE_SERVICE_UNAVAILABLE
+        );
+    }
+
+    @ExceptionHandler(EmployeeIntegrationException.class)
+    public ResponseEntity<ApiErrorResponse> handleEmployeeIntegration(EmployeeIntegrationException ex) {
+        log.warn("Employee service rejected internal request", ex);
+
+        return error(
+                HttpStatus.BAD_GATEWAY,
+                "EMPLOYEE_SERVICE_REJECTED_REQUEST",
+                ErrorMessages.EMPLOYEE_SERVICE_REJECTED_REQUEST
         );
     }
 
@@ -140,7 +152,7 @@ public class GlobalExceptionHandler {
         return error(
                 HttpStatus.CONFLICT,
                 "DATA_INTEGRITY_VIOLATION",
-                "Операция нарушает ограничения целостности данных"
+                ErrorMessages.DATA_INTEGRITY_VIOLATION
         );
     }
 
