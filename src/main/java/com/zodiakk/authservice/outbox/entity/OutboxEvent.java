@@ -2,6 +2,7 @@ package com.zodiakk.authservice.outbox.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -31,6 +32,7 @@ public class OutboxEvent {
     private Integer eventVersion;
 
     @Column(name = "payload", nullable = false, columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
     private String payload;
 
     @Enumerated(EnumType.STRING)

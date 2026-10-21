@@ -34,6 +34,22 @@
         <springdoc.version>3.1.0</springdoc.version>
         <jjwt.version>0.12.7</jjwt.version>
         <spring-cloud.version>2025.1.2</spring-cloud.version>
+        <jacoco.version>0.8.12</jacoco.version>
+        <jacoco.check.skip>false</jacoco.check.skip>
+        <skip.unit.tests>false</skip.unit.tests>
+        <skip.integration.tests>false</skip.integration.tests>
+        <sonar.exclusions>
+            **/AuthServiceApplication.java,
+            **/dto/**,
+            **/entity/**,
+            **/mapper/**,
+            **/config/**,
+            **/common/validation/**,
+            **/common/exception/handler/**,
+            **/jwt/principal/**,
+            **/jwt/filter/**,
+            **/src/test/**/*.java
+        </sonar.exclusions>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -118,6 +134,10 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-kafka</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
@@ -154,6 +174,11 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers-postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-kafka</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -216,7 +241,164 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${project.build.directory}/jacoco.exec</destFile>
+                            <propertyName>surefireArgLine</propertyName>
+                            <append>true</append>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>prepare-agent-integration</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${project.build.directory}/jacoco.exec</destFile>
+                            <propertyName>failsafeArgLine</propertyName>
+                            <append>true</append>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco.exec</dataFile>
+                            <outputDirectory>${project.build.directory}/jacoco-report</outputDirectory>
+                            <formats>
+                                <format>XML</format>
+                                <format>HTML</format>
+                            </formats>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>check-coverage</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${jacoco.check.skip}</skip>
+                            <dataFile>${project.build.directory}/jacoco.exec</dataFile>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.85</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>**/AuthServiceApplication.*</exclude>
+                        <exclude>**/dto/**</exclude>
+                        <exclude>**/entity/**</exclude>
+                        <exclude>**/mapper/**</exclude>
+                        <exclude>**/config/**</exclude>
+                        <exclude>**/common/validation/**</exclude>
+                        <exclude>**/common/exception/handler/**</exclude>
+                        <exclude>**/jwt/principal/**</exclude>
+                        <exclude>**/jwt/filter/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>${skip.unit.tests}</skip>
+                    <excludes>
+                        <exclude>**/*ControllerTest.java</exclude>
+                        <exclude>**/*IntegrationTest.java</exclude>
+                        <exclude>**/TestcontainersConfiguration.java</exclude>
+                        <exclude>**/AuthServiceApplicationTests.java</exclude>
+                    </excludes>
+                    <argLine>${surefireArgLine}</argLine>
+                    <systemPropertyVariables>
+                        <ACTIVE_PROFILE>test</ACTIVE_PROFILE>
+                        <JWT_SECRET>VGhpcyBpcyBhIHZlcnkgc2VjdXJlIHNlY3JldCBrZXkgb2YgYXQgbGVhc3QgMzIgYnl0ZXMu</JWT_SECRET>
+                        <JWT_ACCESS_EXPIRATION>15m</JWT_ACCESS_EXPIRATION>
+                        <JWT_REFRESH_EXPIRATION>7d</JWT_REFRESH_EXPIRATION>
+                        <INTERNAL_API_KEY>test-internal-api-key</INTERNAL_API_KEY>
+                        <CORS_ALLOWED_ORIGINS>http://localhost:5173</CORS_ALLOWED_ORIGINS>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <skip>${skip.integration.tests}</skip>
+                    <includes>
+                        <include>**/*ControllerTest.java</include>
+                        <include>**/*IntegrationTest.java</include>
+                    </includes>
+                    <argLine>${failsafeArgLine}</argLine>
+                    <systemPropertyVariables>
+                        <ACTIVE_PROFILE>test</ACTIVE_PROFILE>
+                        <JWT_SECRET>VGhpcyBpcyBhIHZlcnkgc2VjdXJlIHNlY3JldCBrZXkgb2YgYXQgbGVhc3QgMzIgYnl0ZXMu</JWT_SECRET>
+                        <JWT_ACCESS_EXPIRATION>15m</JWT_ACCESS_EXPIRATION>
+                        <JWT_REFRESH_EXPIRATION>7d</JWT_REFRESH_EXPIRATION>
+                        <INTERNAL_API_KEY>test-internal-api-key</INTERNAL_API_KEY>
+                        <CORS_ALLOWED_ORIGINS>http://localhost:5173</CORS_ALLOWED_ORIGINS>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>unit-tests</id>
+            <properties>
+                <jacoco.check.skip>true</jacoco.check.skip>
+                <skip.integration.tests>true</skip.integration.tests>
+                <skip.unit.tests>false</skip.unit.tests>
+            </properties>
+        </profile>
+        <profile>
+            <id>integration-tests</id>
+            <properties>
+                <jacoco.check.skip>true</jacoco.check.skip>
+                <skip.integration.tests>false</skip.integration.tests>
+                <skip.unit.tests>true</skip.unit.tests>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

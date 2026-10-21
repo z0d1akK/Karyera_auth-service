@@ -2,7 +2,7 @@ package com.zodiakk.authservice.outbox.config;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.kafka.autoconfigure.KafkaConnectionDetails;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -16,14 +16,12 @@ import java.util.Map;
 public class KafkaProducerConfig {
 
     @Bean
-    public ProducerFactory<String, String> producerFactory(
-            @Value("${spring.kafka.bootstrap-servers}") String bootstrapServers
-    ) {
+    public ProducerFactory<String, String> producerFactory(KafkaConnectionDetails connectionDetails) {
         Map<String, Object> properties = new HashMap<>();
 
         properties.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                bootstrapServers
+                connectionDetails.getBootstrapServers()
         );
 
         properties.put(
@@ -39,10 +37,7 @@ public class KafkaProducerConfig {
         properties.put(ProducerConfig.ACKS_CONFIG, "all");
         properties.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         properties.put(ProducerConfig.RETRIES_CONFIG, 10);
-        properties.put(
-                ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION,
-                5
-        );
+        properties.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
 
         return new DefaultKafkaProducerFactory<>(properties);
     }
