@@ -28,7 +28,7 @@ class InternalApiKeyFilterTest {
     @Test
     @DisplayName("authenticates a request with a valid internal key")
     void shouldAuthenticateValidKey() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/internal/auth/validate");
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/internal/v1/auth/validate");
         request.addHeader(SecurityConstants.INTERNAL_API_KEY_HEADER, VALID_KEY);
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
@@ -49,7 +49,7 @@ class InternalApiKeyFilterTest {
     @Test
     @DisplayName("rejects a request without an internal key")
     void shouldRejectMissingKey() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/internal/auth/validate");
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/internal/v1/auth/validate");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
@@ -64,7 +64,7 @@ class InternalApiKeyFilterTest {
     @Test
     @DisplayName("rejects a request with an invalid internal key")
     void shouldRejectInvalidKey() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/internal/auth/validate");
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/internal/v1/auth/validate");
         request.addHeader(SecurityConstants.INTERNAL_API_KEY_HEADER, "wrong-key");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
@@ -80,7 +80,7 @@ class InternalApiKeyFilterTest {
     void shouldRejectWhenConfiguredKeyIsBlank() throws Exception {
         InternalApiKeyFilter filterWithoutKey =
                 new InternalApiKeyFilter("  ", new CustomAuthenticationEntryPoint());
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/internal/auth/validate");
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/internal/v1/auth/validate");
         request.addHeader(SecurityConstants.INTERNAL_API_KEY_HEADER, "  ");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
@@ -96,7 +96,7 @@ class InternalApiKeyFilterTest {
     void shouldRejectWhenConfiguredKeyIsNull() throws Exception {
         InternalApiKeyFilter filterWithoutKey =
                 new InternalApiKeyFilter(null, new CustomAuthenticationEntryPoint());
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/internal/auth/validate");
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/internal/v1/auth/validate");
         request.addHeader(SecurityConstants.INTERNAL_API_KEY_HEADER, "internal-key");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();

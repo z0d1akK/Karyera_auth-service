@@ -79,9 +79,9 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 HttpMethod.POST,
-                                "/api/auth/login",
-                                "/api/auth/refresh",
-                                "/api/auth/change-initial-password"
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/refresh",
+                                "/api/v1/auth/change-initial-password"
                         ).permitAll()
 
                         .requestMatchers(
@@ -96,9 +96,9 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/users").hasAnyRole("HR", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users").hasAnyRole("HR", "ADMIN")
 
-                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/v1/users/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

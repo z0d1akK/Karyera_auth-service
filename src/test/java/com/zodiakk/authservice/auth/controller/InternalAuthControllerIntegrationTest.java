@@ -21,12 +21,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Internal auth API")
 class InternalAuthControllerIntegrationTest extends AbstractIntegrationTest {
 
-    private static final String VALIDATE = "/internal/auth/validate";
+    private static final String VALIDATE = "/internal/v1/auth/validate";
 
     private static final String INTERNAL_KEY = "test-internal-api-key";
 
     @Nested
-    @DisplayName("POST /internal/auth/validate")
+    @DisplayName("POST /internal/v1/auth/validate")
     class ValidateToken {
 
         @Test

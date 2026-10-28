@@ -15,6 +15,6 @@ import java.util.UUID;
 )
 public interface EmployeeClient {
 
-    @GetMapping("/internal/employees/{id}/account-info")
+    @GetMapping("/internal/v1/employees/{id}/account-info")
     EmployeeAccountInfoDto getAccountInfo(@PathVariable("id") UUID id);
 }

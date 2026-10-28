@@ -49,7 +49,7 @@ class JwtAuthenticationFilterTest {
     @DisplayName("passes the request through when no Authorization header is present")
     void shouldPassThroughWithoutHeader() throws Exception {
         JwtAuthenticationFilter filter = filter();
-        MockHttpServletRequest request = request("/api/users");
+        MockHttpServletRequest request = request("/api/v1/users");
         MockFilterChain chain = new MockFilterChain();
 
         filter.doFilter(request, new MockHttpServletResponse(), chain);
@@ -65,7 +65,7 @@ class JwtAuthenticationFilterTest {
         when(jwtService.parseToken(AuthTestDataFactory.ACCESS_TOKEN, JwtTokenType.ACCESS)).thenReturn(claims);
 
         JwtAuthenticationFilter filter = filter();
-        MockHttpServletRequest request = request("/api/users");
+        MockHttpServletRequest request = request("/api/v1/users");
         request.addHeader("Authorization", "Bearer " + AuthTestDataFactory.ACCESS_TOKEN);
         MockFilterChain chain = new MockFilterChain();
 
@@ -93,7 +93,7 @@ class JwtAuthenticationFilterTest {
                 .thenReturn(new ModelAndView());
 
         JwtAuthenticationFilter filter = filter();
-        MockHttpServletRequest request = request("/api/users");
+        MockHttpServletRequest request = request("/api/v1/users");
         request.addHeader("Authorization", "Basic dXNlcjpwYXNz");
         MockFilterChain chain = new MockFilterChain();
 
@@ -112,7 +112,7 @@ class JwtAuthenticationFilterTest {
                 .thenReturn(new ModelAndView());
 
         JwtAuthenticationFilter filter = filter();
-        MockHttpServletRequest request = request("/api/users");
+        MockHttpServletRequest request = request("/api/v1/users");
         request.addHeader("Authorization", "Bearer " + AuthTestDataFactory.ACCESS_TOKEN);
         MockFilterChain chain = new MockFilterChain();
 
@@ -133,7 +133,7 @@ class JwtAuthenticationFilterTest {
                 .thenReturn(new ModelAndView());
 
         JwtAuthenticationFilter filter = filter();
-        MockHttpServletRequest request = request("/api/users");
+        MockHttpServletRequest request = request("/api/v1/users");
         request.addHeader("Authorization", "Bearer " + AuthTestDataFactory.ACCESS_TOKEN);
         MockFilterChain chain = new MockFilterChain();
 
@@ -151,7 +151,7 @@ class JwtAuthenticationFilterTest {
                 .thenReturn(null);
 
         JwtAuthenticationFilter filter = filter();
-        MockHttpServletRequest request = request("/api/users");
+        MockHttpServletRequest request = request("/api/v1/users");
         request.addHeader("Authorization", "Bearer " + AuthTestDataFactory.ACCESS_TOKEN);
 
         assertThatThrownBy(() -> filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
@@ -163,10 +163,10 @@ class JwtAuthenticationFilterTest {
     void shouldNotFilterPublicEndpoints() {
         JwtAuthenticationFilter filter = filter();
 
-        assertThat(filter.shouldNotFilter(request("OPTIONS", "/api/users"))).isTrue();
-        assertThat(filter.shouldNotFilter(request("POST", "/api/auth/login"))).isTrue();
-        assertThat(filter.shouldNotFilter(request("POST", "/api/auth/refresh"))).isTrue();
-        assertThat(filter.shouldNotFilter(request("POST", "/api/auth/change-initial-password"))).isTrue();
+        assertThat(filter.shouldNotFilter(request("OPTIONS", "/api/v1/users"))).isTrue();
+        assertThat(filter.shouldNotFilter(request("POST", "/api/v1/auth/login"))).isTrue();
+        assertThat(filter.shouldNotFilter(request("POST", "/api/v1/auth/refresh"))).isTrue();
+        assertThat(filter.shouldNotFilter(request("POST", "/api/v1/auth/change-initial-password"))).isTrue();
         assertThat(filter.shouldNotFilter(request("GET", "/actuator/health"))).isTrue();
         assertThat(filter.shouldNotFilter(request("GET", "/actuator/health/liveness"))).isTrue();
         assertThat(filter.shouldNotFilter(request("GET", "/actuator/info"))).isTrue();
@@ -184,9 +184,9 @@ class JwtAuthenticationFilterTest {
     void shouldFilterProtectedEndpoints() {
         JwtAuthenticationFilter filter = filter();
 
-        assertThat(filter.shouldNotFilter(request("GET", "/api/users"))).isFalse();
-        assertThat(filter.shouldNotFilter(request("POST", "/api/users"))).isFalse();
-        assertThat(filter.shouldNotFilter(request("GET", "/internal/auth/validate"))).isFalse();
+        assertThat(filter.shouldNotFilter(request("GET", "/api/v1/users"))).isFalse();
+        assertThat(filter.shouldNotFilter(request("POST", "/api/v1/users"))).isFalse();
+        assertThat(filter.shouldNotFilter(request("GET", "/internal/v1/auth/validate"))).isFalse();
         assertThat(filter.shouldNotFilter(request("GET", "/actuator/metrics"))).isFalse();
     }
 

@@ -128,12 +128,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         }
 
-        if ("POST".equalsIgnoreCase(request.getMethod())) {
-            if (path.equals("/api/auth/login")
-                    || path.equals("/api/auth/refresh")
-                    || path.equals("/api/auth/change-initial-password")) {
-                return true;
-            }
+        if ("POST".equalsIgnoreCase(request.getMethod())
+                && (path.equals("/api/v1/auth/login")
+                || path.equals("/api/v1/auth/refresh")
+                || path.equals("/api/v1/auth/change-initial-password"))) {
+            return true;
         }
 
         return path.equals("/actuator/health")

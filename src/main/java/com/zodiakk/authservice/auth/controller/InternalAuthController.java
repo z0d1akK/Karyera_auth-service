@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/internal/auth")
+@RequestMapping("/internal/v1/auth")
 @RequiredArgsConstructor
 @Tag(name = "Internal Authentication", description = "Internal API for trusted services")
 @SecurityRequirement(name = "internalApiKey")

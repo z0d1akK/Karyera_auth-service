@@ -34,10 +34,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("User administration API")
 class UserControllerIntegrationTest extends AbstractIntegrationTest {
 
-    private static final String USERS = "/api/users";
+    private static final String USERS = "/api/v1/users";
 
     @Nested
-    @DisplayName("POST /api/users")
+    @DisplayName("POST /api/v1/users")
     class Create {
 
         @Test
@@ -356,7 +356,7 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
-    @DisplayName("PUT /api/users/{id}")
+    @DisplayName("PUT /api/v1/users/{id}")
     class Update {
 
         @Test
@@ -515,7 +515,7 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
-    @DisplayName("POST /api/users/{id}/reset-password")
+    @DisplayName("POST /api/v1/users/{id}/reset-password")
     class ResetPassword {
 
         @Test
@@ -583,7 +583,7 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
-    @DisplayName("DELETE /api/users/{id}")
+    @DisplayName("DELETE /api/v1/users/{id}")
     class Delete {
 
         @Test

@@ -53,5 +53,17 @@ public class ErrorMessages {
 
     public static final String OUTBOX_EVENT_SERIALIZATION_FAILED = "Не удалось сериализовать outbox-событие: %s";
 
+    public static final String INVALID_REQUEST_BODY = "Некорректное тело запроса";
+
+    public static final String RESOURCE_NOT_FOUND = "Запрошенный ресурс не найден";
+
+    public static final String METHOD_NOT_ALLOWED = "Метод запроса не поддерживается";
+
+    public static final String UNSUPPORTED_MEDIA_TYPE = "Неподдерживаемый тип содержимого запроса";
+
+    public static final String INVALID_PARAMETER = "Некорректное значение параметра: %s";
+
+    public static final String MISSING_PARAMETER = "Обязательный параметр отсутствует: %s";
+
     public static final String INTERNAL_SERVER_ERROR = "Внутренняя ошибка сервера";
 }

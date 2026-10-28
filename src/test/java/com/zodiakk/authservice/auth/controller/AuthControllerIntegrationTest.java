@@ -27,16 +27,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Auth API")
 class AuthControllerIntegrationTest extends AbstractIntegrationTest {
 
-    private static final String LOGIN = "/api/auth/login";
+    private static final String LOGIN = "/api/v1/auth/login";
 
-    private static final String REFRESH = "/api/auth/refresh";
+    private static final String REFRESH = "/api/v1/auth/refresh";
 
-    private static final String LOGOUT = "/api/auth/logout";
+    private static final String LOGOUT = "/api/v1/auth/logout";
 
-    private static final String CHANGE_INITIAL_PASSWORD = "/api/auth/change-initial-password";
+    private static final String CHANGE_INITIAL_PASSWORD = "/api/v1/auth/change-initial-password";
 
     @Nested
-    @DisplayName("POST /api/auth/login")
+    @DisplayName("POST /api/v1/auth/login")
     class Login {
 
         @Test
@@ -150,7 +150,7 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
-    @DisplayName("POST /api/auth/refresh")
+    @DisplayName("POST /api/v1/auth/refresh")
     class Refresh {
 
         @Test
@@ -268,7 +268,7 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
-    @DisplayName("POST /api/auth/change-initial-password")
+    @DisplayName("POST /api/v1/auth/change-initial-password")
     class ChangeInitialPassword {
 
         @Test
@@ -361,7 +361,7 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
-    @DisplayName("POST /api/auth/logout")
+    @DisplayName("POST /api/v1/auth/logout")
     class Logout {
 
         @Test
