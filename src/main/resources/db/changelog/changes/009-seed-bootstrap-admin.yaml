@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-seed-bootstrap-admin
+      author: zodiakk
+      comment: Bootstrap ADMIN — login admin@karyera.local / Admin12345!
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM users WHERE id = '9a1b0c2d-3e4f-4a5b-8c7d-000000000001'
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            sql: |
+              INSERT INTO users (
+                  id,
+                  employee_id,
+                  email,
+                  active,
+                  deletion_status,
+                  created_at,
+                  updated_at
+              ) VALUES (
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000001',
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000003',
+                  'admin@karyera.local',
+                  TRUE,
+                  'NONE',
+                  NOW(),
+                  NOW()
+              );
+
+              INSERT INTO auth_credentials (
+                  id,
+                  user_id,
+                  login,
+                  password_hash,
+                  password_change_required,
+                  role,
+                  created_at,
+                  updated_at
+              ) VALUES (
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000002',
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000001',
+                  'admin@karyera.local',
+                  '$2b$10$7nY3QkF5pU/.9psjh0.fauJn0ueEAr0n0HxhJlt3vwXFmJ90xlmH.',
+                  FALSE,
+                  'ADMIN',
+                  NOW(),
+                  NOW()
+              );
