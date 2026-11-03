@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-seed-demo-users
+      author: zodiakk
+      comment: Demo users employee@, manager@, hr@ karyera.local / Demo12345!
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM users WHERE id = '9a1b0c2d-3e4f-4a5b-8c7d-000000000201'
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            sql: |
+              INSERT INTO users (
+                  id, employee_id, email, active, deletion_status, created_at, updated_at
+              ) VALUES
+              (
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000201',
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000101',
+                  'employee@karyera.local',
+                  TRUE, 'NONE', NOW(), NOW()
+              ),
+              (
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000202',
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000102',
+                  'manager@karyera.local',
+                  TRUE, 'NONE', NOW(), NOW()
+              ),
+              (
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000203',
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000103',
+                  'hr@karyera.local',
+                  TRUE, 'NONE', NOW(), NOW()
+              );
+
+              INSERT INTO auth_credentials (
+                  id, user_id, login, password_hash, password_change_required, role, created_at, updated_at
+              ) VALUES
+              (
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000301',
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000201',
+                  'employee@karyera.local',
+                  '$2a$10$HaDdwozMInX7EtE6isYy.ODjA0zotqmORTxjH8n8VhvWTSMo7iwC2',
+                  FALSE, 'EMPLOYEE', NOW(), NOW()
+              ),
+              (
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000302',
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000202',
+                  'manager@karyera.local',
+                  '$2a$10$HaDdwozMInX7EtE6isYy.ODjA0zotqmORTxjH8n8VhvWTSMo7iwC2',
+                  FALSE, 'MANAGER', NOW(), NOW()
+              ),
+              (
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000303',
+                  '9a1b0c2d-3e4f-4a5b-8c7d-000000000203',
+                  'hr@karyera.local',
+                  '$2a$10$HaDdwozMInX7EtE6isYy.ODjA0zotqmORTxjH8n8VhvWTSMo7iwC2',
+                  FALSE, 'HR', NOW(), NOW()
+              );
