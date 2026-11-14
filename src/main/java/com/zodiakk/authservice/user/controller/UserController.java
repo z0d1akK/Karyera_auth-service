@@ -34,7 +34,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('HR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     @Operation(summary = "Create user account", description = "Creates an account for an existing employee. "
                     + "HR may create EMPLOYEE and MANAGER accounts; "
                     + "ADMIN may create accounts with any role."
@@ -53,7 +53,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HR', 'ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get user by ID")
     @ApiResponse(responseCode = "200", description = "User found")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
@@ -64,7 +64,7 @@ public class UserController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('HR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     @Operation(summary = "Get users", description = "Returns a paginated list of user accounts.")
     @ApiResponse(responseCode = "200", description = "Users retrieved")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
@@ -74,7 +74,7 @@ public class UserController {
     }
 
     @GetMapping("/employee/{employeeId}")
-    @PreAuthorize("hasAnyRole('HR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     @Operation(summary = "Get user by employee ID")
     @ApiResponse(responseCode = "200", description = "User found")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
