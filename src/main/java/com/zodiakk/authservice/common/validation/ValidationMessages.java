@@ -26,5 +26,5 @@ public final class ValidationMessages {
 
     public static final String NEW_PASSWORD_SIZE = "Новый пароль должен содержать от 12 до 255 символов";
 
-    public static final String TEMPORARY_PASSWORD_SIZE = "Временный пароль должен содержать от 12 до 128 символов";
+    public static final String TEMPORARY_PASSWORD_SIZE = "Временный пароль должен содержать от 12 до 255 символов";
 }

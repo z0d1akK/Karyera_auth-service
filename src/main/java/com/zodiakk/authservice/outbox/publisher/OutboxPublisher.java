@@ -10,8 +10,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.TimeUnit;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -37,13 +35,13 @@ public class OutboxPublisher {
 
     private void publish(OutboxEvent event) {
         try {
+            if (properties.sendTimeoutSeconds() < 0) {
+                throw new IllegalStateException("app.outbox.send-timeout-seconds");
+            }
             kafkaTemplate.send(
                     userEventsTopic,
                     event.getAggregateId().toString(),
                     event.getPayload()
-            ).orTimeout(
-                    properties.sendTimeoutSeconds(),
-                    TimeUnit.SECONDS
             ).whenComplete((result, ex) -> complete(event, ex));
         } catch (RuntimeException ex) {
             complete(event, ex);

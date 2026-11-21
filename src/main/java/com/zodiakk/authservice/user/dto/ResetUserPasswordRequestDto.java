@@ -13,7 +13,7 @@ import lombok.Setter;
 public class ResetUserPasswordRequestDto {
 
     @NotBlank(message = ValidationMessages.USER_PASSWORD_REQUIRED)
-    @Size(min = 12, max = 128, message = ValidationMessages.TEMPORARY_PASSWORD_SIZE)
+    @Size(min = 12, max = 255, message = ValidationMessages.TEMPORARY_PASSWORD_SIZE)
     @Schema(
             description = "New temporary password",
             example = "Temporary#2026Password",
