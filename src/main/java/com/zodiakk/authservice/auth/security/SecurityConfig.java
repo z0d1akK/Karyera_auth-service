@@ -36,6 +36,9 @@ public class SecurityConfig {
     @Value("${internal.api-key}")
     private String internalApiKey;
 
+    @Value("${app.openapi.anonymous:false}")
+    private boolean openApiAnonymous;
+
     @Bean
     @Order(1)
     public SecurityFilterChain internalSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -70,27 +73,27 @@ public class SecurityConfig {
     ) throws Exception {
 
         JwtAuthenticationFilter jwtAuthenticationFilter =
-                new JwtAuthenticationFilter(jwtService, handlerExceptionResolver, accessTokenGuard);
+                new JwtAuthenticationFilter(jwtService, handlerExceptionResolver, accessTokenGuard, openApiAnonymous);
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**")
-                        .permitAll()
-
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                "/api/v1/auth/login",
-                                "/api/v1/auth/refresh",
-                                "/api/v1/auth/change-initial-password"
-                        ).permitAll()
-
-                        .requestMatchers(
-                                "/actuator/health",
-                                "/actuator/health/**",
-                                "/actuator/info",
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+                    auth.requestMatchers(
+                            HttpMethod.POST,
+                            "/api/v1/auth/login",
+                            "/api/v1/auth/refresh",
+                            "/api/v1/auth/change-initial-password"
+                    ).permitAll();
+                    auth.requestMatchers(
+                            "/actuator/health",
+                            "/actuator/health/**",
+                            "/actuator/info"
+                    ).permitAll();
+                    if (openApiAnonymous) {
+                        auth.requestMatchers(
                                 "/api-docs",
                                 "/api-docs/**",
                                 "/v3/api-docs",
@@ -98,12 +101,12 @@ public class SecurityConfig {
                                 "/swagger-ui",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users").hasAnyRole("HR", "ADMIN")
-
-                        .requestMatchers("/api/v1/users/**").authenticated()
-                        .anyRequest().authenticated()
-                )
+                        ).permitAll();
+                    }
+                    auth.requestMatchers(HttpMethod.POST, "/api/v1/users").hasAnyRole("HR", "ADMIN");
+                    auth.requestMatchers("/api/v1/users/**").authenticated();
+                    auth.anyRequest().authenticated();
+                })
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                         .accessDeniedHandler(new CustomAccessDeniedHandler())

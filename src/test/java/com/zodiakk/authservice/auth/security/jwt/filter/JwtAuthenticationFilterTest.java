@@ -170,6 +170,15 @@ class JwtAuthenticationFilterTest {
         assertThat(filter.shouldNotFilter(request("GET", "/actuator/health"))).isTrue();
         assertThat(filter.shouldNotFilter(request("GET", "/actuator/health/liveness"))).isTrue();
         assertThat(filter.shouldNotFilter(request("GET", "/actuator/info"))).isTrue();
+        assertThat(filter.shouldNotFilter(request("GET", "/api-docs"))).isFalse();
+        assertThat(filter.shouldNotFilter(request("GET", "/swagger-ui.html"))).isFalse();
+    }
+
+    @Test
+    @DisplayName("does not filter OpenAPI endpoints when anonymous access is enabled")
+    void shouldNotFilterOpenApiWhenAnonymous() {
+        JwtAuthenticationFilter filter = filter(true);
+
         assertThat(filter.shouldNotFilter(request("GET", "/api-docs"))).isTrue();
         assertThat(filter.shouldNotFilter(request("GET", "/api-docs/swagger-config"))).isTrue();
         assertThat(filter.shouldNotFilter(request("GET", "/v3/api-docs"))).isTrue();
@@ -191,7 +200,11 @@ class JwtAuthenticationFilterTest {
     }
 
     private JwtAuthenticationFilter filter() {
-        return new JwtAuthenticationFilter(jwtService, handlerExceptionResolver, claims -> true);
+        return filter(false);
+    }
+
+    private JwtAuthenticationFilter filter(boolean openApiAnonymous) {
+        return new JwtAuthenticationFilter(jwtService, handlerExceptionResolver, claims -> true, openApiAnonymous);
     }
 
     private MockHttpServletRequest request(String uri) {

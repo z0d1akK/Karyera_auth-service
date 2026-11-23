@@ -34,6 +34,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final AccessTokenGuard accessTokenGuard;
 
+    private final boolean openApiAnonymous;
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -143,15 +145,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         }
 
-        return path.equals("/actuator/health")
+        if (path.equals("/actuator/health")
                 || path.startsWith("/actuator/health/")
-                || path.equals("/actuator/info")
-                || path.equals("/api-docs")
+                || path.equals("/actuator/info")) {
+            return true;
+        }
+
+        return openApiAnonymous
+                && (path.equals("/api-docs")
                 || path.startsWith("/api-docs/")
                 || path.equals("/v3/api-docs")
                 || path.startsWith("/v3/api-docs/")
                 || path.equals("/swagger-ui")
                 || path.startsWith("/swagger-ui/")
-                || path.equals("/swagger-ui.html");
+                || path.equals("/swagger-ui.html"));
     }
 }
