@@ -191,7 +191,7 @@ class JwtAuthenticationFilterTest {
     }
 
     private JwtAuthenticationFilter filter() {
-        return new JwtAuthenticationFilter(jwtService, handlerExceptionResolver);
+        return new JwtAuthenticationFilter(jwtService, handlerExceptionResolver, claims -> true);
     }
 
     private MockHttpServletRequest request(String uri) {

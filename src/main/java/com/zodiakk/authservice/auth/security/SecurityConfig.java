@@ -3,6 +3,7 @@ package com.zodiakk.authservice.auth.security;
 import com.zodiakk.authservice.auth.security.filter.InternalApiKeyFilter;
 import com.zodiakk.authservice.auth.security.handler.CustomAccessDeniedHandler;
 import com.zodiakk.authservice.auth.security.handler.CustomAuthenticationEntryPoint;
+import com.zodiakk.authservice.auth.security.jwt.AccessTokenGuard;
 import com.zodiakk.authservice.auth.security.jwt.filter.JwtAuthenticationFilter;
 import com.zodiakk.authservice.auth.security.jwt.service.JwtService;
 import com.zodiakk.authservice.common.constants.SecurityConstants;
@@ -29,6 +30,8 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 public class SecurityConfig {
 
     private final JwtService jwtService;
+
+    private final AccessTokenGuard accessTokenGuard;
 
     @Value("${internal.api-key}")
     private String internalApiKey;
@@ -67,7 +70,7 @@ public class SecurityConfig {
     ) throws Exception {
 
         JwtAuthenticationFilter jwtAuthenticationFilter =
-                new JwtAuthenticationFilter(jwtService, handlerExceptionResolver);
+                new JwtAuthenticationFilter(jwtService, handlerExceptionResolver, accessTokenGuard);
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)

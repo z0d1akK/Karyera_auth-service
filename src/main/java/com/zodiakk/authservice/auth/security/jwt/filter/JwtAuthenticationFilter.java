@@ -2,6 +2,7 @@ package com.zodiakk.authservice.auth.security.jwt.filter;
 
 import com.zodiakk.authservice.auth.exception.ExpiredJwtTokenException;
 import com.zodiakk.authservice.auth.exception.InvalidJwtTokenException;
+import com.zodiakk.authservice.auth.security.jwt.AccessTokenGuard;
 import com.zodiakk.authservice.auth.security.jwt.JwtTokenClaims;
 import com.zodiakk.authservice.auth.security.jwt.JwtTokenType;
 import com.zodiakk.authservice.auth.security.jwt.principal.AuthenticatedUser;
@@ -30,6 +31,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
     private final HandlerExceptionResolver handlerExceptionResolver;
+
+    private final AccessTokenGuard accessTokenGuard;
 
     @Override
     protected void doFilterInternal(
@@ -70,6 +73,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         } catch (ExpiredJwtTokenException | InvalidJwtTokenException ex) {
             resolveJwtException(request, response, ex);
+            return;
+        }
+
+        if (!accessTokenGuard.allows(claims)) {
+            resolveJwtException(request, response, new InvalidJwtTokenException());
             return;
         }
 
